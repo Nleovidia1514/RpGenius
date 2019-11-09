@@ -24,3 +24,30 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+
+.line {
+    width: 75%;
+    height: 1px;
+    background: #989aa2;
+    margin: 1px auto;
+    position: relative;
+}
+
+.head-image {
+    height: 150px;
+    background-size: contain;
+    width: 180px;
+    margin: auto;
+    align-self: center;
+}
+
+.logo {
+    width: 1.25em!important;
+}
+
+.input {
+    background-color: #f0f0f0;
+    border: 1px solid #d2d2d2;
+    border-radius: 9px;
+    font-size: .9em!important;
+}

@@ -1,0 +1,117 @@
+<ion-header color="primary">
+  <ion-row class="justify-content-center">
+    <ion-img class="head-image" src="assets/logo.png"></ion-img>
+  </ion-row>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-text color="light">
+    <h3 class="title ion-margin-bottom ion-no-margin ion-text-center">
+      Log In
+    </h3>
+  </ion-text>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-input
+          class="input ion-padding-horizontal"
+          placeholder="Email"
+          type="email"
+          [(ngModel)]="email"
+        ></ion-input>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="11">
+        <ion-input
+          class="input ion-padding-horizontal"
+          placeholder="Password"
+          [type]="showPassword ? 'text' : 'password'"
+          [(ngModel)]="password"
+        ></ion-input>
+      </ion-col>
+      <ion-col size="1">
+        <ion-button
+          color="medium"
+          fill="clear"
+          class="ion-no-padding ion-no-margin"
+          (click)="showPass()"
+        >
+          <ion-icon slot="icon-only" name="eye"></ion-icon>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-text
+          color="light"
+          class="ion-color ion-color-medium"
+          placeholder="Password"
+          type="password"
+          routerLink="/recovery"
+        >
+          <h6 class="ion-no-margin ion-text-end">Forgot Password?</h6>
+        </ion-text>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button
+          color="light"
+          expand="block"
+          fill="outline"
+          [disabled]="loading"
+          (click)="login()"
+        >
+          <strong *ngIf="!loading">Log In</strong>
+          <ion-spinner class="ion-text-center" *ngIf="loading" color="light"></ion-spinner>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <div class="line"></div>
+    <ion-row>
+      <ion-col>
+        <ion-button
+          color="secondary"
+          expand="block"
+          fill="outline"
+          class="ion-no-padding"
+        >
+          <ion-img
+            src="assets/facebook_logo.png"
+            slot="start"
+            class="ion-margin-end logo"
+          ></ion-img>
+          Facebook
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button
+          color="secondary"
+          expand="block"
+          fill="outline"
+          class="ion-no-padding"
+        >
+          <ion-img
+            src="assets/google_logo.png"
+            slot="start"
+            class="ion-margin-end logo"
+          ></ion-img>
+          Google
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button
+          routerLink="/register"
+          expand="block"
+          fill="outline"
+          color="danger"
+        >
+          <strong>Don't have an account yet?</strong>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

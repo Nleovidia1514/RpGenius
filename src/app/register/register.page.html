@@ -1,0 +1,123 @@
+<ion-header color="primary">
+  <ion-row class="justify-content-center">
+    <ion-img class="head-image" src="assets/logo.png"></ion-img>
+  </ion-row>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-text color="light">
+    <h3 class="title ion-margin-bottom ion-no-margin ion-text-center">
+      Register
+    </h3>
+  </ion-text>
+  <form [formGroup]="registerFormGroup" (ngSubmit)="register()">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-input
+            type="text"
+            class="input"
+            placeholder="First Name"
+            formControlName="firstName"
+          ></ion-input>
+        </ion-col>
+        <ion-col>
+          <ion-input
+            type="text"
+            class="input"
+            placeholder="Last Name"
+            formControlName="lastName"
+          ></ion-input>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-input
+            type="email"
+            class="input"
+            placeholder="Email"
+            formControlName="email"
+          ></ion-input>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="11">
+          <ion-input
+            [type]="showPassword ? 'text' : 'password'"
+            class="input"
+            placeholder="Password"
+            formControlName="password"
+          ></ion-input>
+        </ion-col>
+        <ion-col size="1">
+          <ion-button
+          color="medium"
+          fill="clear"
+          class="ion-no-padding ion-no-margin"
+          (click)="showPass()"
+        >
+          <ion-icon slot="icon-only" name="eye"></ion-icon>
+        </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-button
+            color="secondary"
+            expand="block"
+            fill="solid"
+            type="submit"
+            [disabled]="!registerFormGroup.valid"
+          >
+            <strong>CREATE ACCOUNT</strong>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <div class="line"></div>
+      <ion-row>
+        <ion-col>
+          <ion-button
+            color="secondary"
+            expand="block"
+            fill="outline"
+            class="ion-no-padding"
+          >
+            <ion-img
+              src="assets/facebook_logo.png"
+              slot="start"
+              class="ion-margin-end logo"
+            ></ion-img>
+            Facebook
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button
+            color="secondary"
+            expand="block"
+            fill="outline"
+            class="ion-no-padding"
+          >
+            <ion-img
+              src="assets/google_logo.png"
+              slot="start"
+              class="ion-margin-end logo"
+            ></ion-img>
+            Google
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-button
+            routerLink="/login"
+            expand="block"
+            fill="outline"
+            color="success"
+          >
+            ALREADY HAVE AN ACCOUNT?
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
+</ion-content>
