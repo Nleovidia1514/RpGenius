@@ -1,8 +1,14 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import {
+  AngularFirestore,
+  AngularFirestoreDocument
+} from '@angular/fire/firestore';
 import { User } from '../models/user.interface';
 import { LoadingController, AlertController } from '@ionic/angular';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { isNullOrUndefined } from 'util';
 
 interface RegisterValues {
   firstName: string;
@@ -20,10 +26,35 @@ interface LoginValues {
   providedIn: 'root'
 })
 export class AuthService {
+
   constructor(
     private fAuth: AngularFireAuth,
     private firestore: AngularFirestore
   ) {}
+
+  getCurrentUser() {
+    return new Promise<User>(resolve => {
+      const obs: Observable<User> = this.firestore
+        .doc<User>(`users/${this.fAuth.auth.currentUser.uid}`)
+        .get()
+        .pipe(
+          map(doc => {
+            const data = doc.data();
+            return {
+              cart: data.cart,
+              email: data.email,
+              firstName: data.firstName,
+              isAdmin: data.isAdmin,
+              lastName: data.lastName
+            };
+          })
+        );
+      obs.subscribe(user => {
+        this.currentUser = user;
+        resolve(user);
+      });
+    });
+  }
 
   registerUser(values: RegisterValues) {
     return new Promise(resolve => {
@@ -36,6 +67,7 @@ export class AuthService {
             firstName: values.firstName,
             lastName: values.lastName,
             email: values.email,
+            cart: [],
             isAdmin: false
           });
           resolve(null);

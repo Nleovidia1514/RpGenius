@@ -5,16 +5,18 @@
     </ion-buttons>
     <ion-title>Explorar</ion-title>
     <ion-buttons slot="end">
-      <ion-button routerLink="/layout/cart">
-        <ion-icon name="cart">`
-        
-        </ion-icon>
+      <ion-button routerLink="/layout/cart" >
+        <ion-icon name="cart" slot="start">`</ion-icon>
+        <ion-badge color="primary" slot="end" color="danger">{{ user.cart.length }}</ion-badge>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar color="primary">
     <ion-segment (ionChange)="segmentChanged()" [(ngModel)]="activeTab">
-      <ion-segment-button *ngFor="let segment of exploreSegments; let i = index;" [value]="i">
+      <ion-segment-button
+        *ngFor="let segment of exploreSegments; let i = index"
+        [value]="i"
+      >
         <ion-text>
           {{ segment.name }}
         </ion-text>
@@ -26,16 +28,22 @@
 <ion-content>
   <ion-slides (ionSlideDidChange)="slideChange()">
     <ion-slide>
-      <ion-grid>
-        <ion-row>
-          <ion-col size="6" *ngFor="let skin of skins">
-              <app-product [product]="skin" [cartAdd]="addToCart"></app-product>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+          <ion-infinite-scroll (ionInfinite)="loadMoreSkins()" #ionInfScroll1>
+              <ion-infinite-scroll-content>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="6" *ngFor="let skin of skins">
+                      <app-product
+                        [product]="skin"
+                        [cartAdd]="addToCart"
+                      ></app-product>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-infinite-scroll-content>
+            </ion-infinite-scroll>
     </ion-slide>
     <ion-slide></ion-slide>
     <ion-slide></ion-slide>
   </ion-slides>
-
 </ion-content>

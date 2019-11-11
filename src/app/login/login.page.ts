@@ -5,19 +5,17 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
+  styleUrls: ['./login.page.scss']
 })
 export class LoginPage implements OnInit {
-
   email: string;
   password: string;
   showPassword = false;
   loading = false;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   showPass() {
     this.showPassword = !this.showPassword;
@@ -25,12 +23,14 @@ export class LoginPage implements OnInit {
 
   login() {
     this.loading = true;
-    this.authService.loginUser({email: this.email, password: this.password}).then(res => {
-      this.loading = false;
-      this.router.navigate(['layout','explore']);
-    }).catch(err => {
-      this.loading = false;
-    });
+    this.authService
+      .loginUser({ email: this.email, password: this.password })
+      .then(res => {
+        this.loading = false;
+        this.router.navigate(['layout', 'explore']);
+      })
+      .catch(err => {
+        this.loading = false;
+      });
   }
-
 }

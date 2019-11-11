@@ -16,6 +16,7 @@ import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { EmailValidator } from './validators/email.validator';
 import { ComponentsModule } from './components/components.module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [AppComponent],
@@ -29,14 +30,15 @@ import { ComponentsModule } from './components/components.module';
     AngularFireAuthModule,
     ReactiveFormsModule,
     FormsModule,
-    ComponentsModule
+    ComponentsModule,
+    HttpClientModule
   ],
   providers: [
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     EmailValidator,
-    AngularFireAuthGuard,
+    AngularFireAuthGuard
   ],
   bootstrap: [AppComponent]
 })
