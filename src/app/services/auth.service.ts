@@ -1,18 +1,14 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
-import {
-  AngularFirestore,
-  AngularFirestoreDocument
-} from '@angular/fire/firestore';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { User } from '../models/user.interface';
-import { LoadingController, AlertController } from '@ionic/angular';
-import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
-import { isNullOrUndefined } from 'util';
+import { map, first } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 
 interface RegisterValues {
   firstName: string;
   lastName: string;
+  displayName: string;
   email: string;
   password: string;
 }
@@ -26,7 +22,6 @@ interface LoginValues {
   providedIn: 'root'
 })
 export class AuthService {
-
   constructor(
     private fAuth: AngularFireAuth,
     private firestore: AngularFirestore
@@ -34,25 +29,34 @@ export class AuthService {
 
   getCurrentUser() {
     return new Promise<User>(resolve => {
-      const obs: Observable<User> = this.firestore
-        .doc<User>(`users/${this.fAuth.auth.currentUser.uid}`)
-        .get()
+      this.fAuth.authState
         .pipe(
-          map(doc => {
-            const data = doc.data();
-            return {
-              cart: data.cart,
-              email: data.email,
-              firstName: data.firstName,
-              isAdmin: data.isAdmin,
-              lastName: data.lastName
-            };
+          first(),
+          map(user => {
+            if (user !== null) {
+              return this.firestore
+              .doc<User>(`users/${user.uid}`)
+              .get()
+              .pipe(
+                first(),
+                map(doc => {
+                  return { ...doc.data() } as User;
+                })
+              );
+            } else {
+              return of(null);
+            } 
           })
-        );
-      obs.subscribe(user => {
-        this.currentUser = user;
-        resolve(user);
-      });
+        )
+        .subscribe(userDocObs => {
+          userDocObs.subscribe(user => {
+            if (user) {
+              resolve(user);
+            } else {
+              resolve(null);
+            }
+          });
+        });
     });
   }
 
@@ -66,6 +70,7 @@ export class AuthService {
           userDoc.set({
             firstName: values.firstName,
             lastName: values.lastName,
+            displayName: values.displayName,
             email: values.email,
             cart: [],
             isAdmin: false

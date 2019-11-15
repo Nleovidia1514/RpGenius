@@ -1,34 +1,45 @@
 <ion-menu contentId="main-content" type="push">
   <ion-header>
     <ion-toolbar color="primary">
-      <ion-avatar></ion-avatar>
+      <ion-title>{{ user.displayName }}</ion-title>
     </ion-toolbar>
   </ion-header>
   <ion-content>
     <ion-list>
-      <ion-item
-        *ngFor="let page of appPages"
-        lines="none"
-        [routerLink]="page.url"
-        routerLinkActive="active"
-      >
-        <ion-icon [name]="page.icon" slot="start" role="img"></ion-icon>
-        <ion-label>{{ page.title }}</ion-label>
-      </ion-item>
-      <div class="line"></div>
-      <ion-item
-        *ngFor="let page of infoPages"
-        lines="none"
-        [routerLink]="page.url"
-        routerLinkActive="active"
-      >
-        <ion-icon [name]="page.icon" slot="start" role="img"></ion-icon>
-        <ion-label>{{ page.title }}</ion-label>
-      </ion-item>
-      <ion-item (click)="logout()">
-        <ion-icon name="log-out" slot="start" role="image"></ion-icon>
-        <ion-label>Log Out</ion-label>
-      </ion-item>
+      <ion-menu-toggle auto-hide="true">
+        <ion-item
+          *ngFor="let page of appPages"
+          lines="none"
+          [routerLink]="page.url"
+          routerLinkActive="active"
+        >
+          <ion-icon [name]="page.icon" slot="start" role="img"></ion-icon>
+          <ion-label>{{ page.title }}</ion-label>
+        </ion-item>
+        <ion-item
+          *ngIf="user.isAdmin"
+          lines="none"
+          routerLink="/layout/admin"
+          routerLinkActive="active"
+        >
+          <ion-icon name="construct" slot="start" role="img"></ion-icon>
+          <ion-label>Admin Tools</ion-label>
+        </ion-item>
+        <div class="line"></div>
+        <ion-item
+          *ngFor="let page of infoPages"
+          lines="none"
+          [routerLink]="page.url"
+          routerLinkActive="active"
+        >
+          <ion-icon [name]="page.icon" slot="start" role="img"></ion-icon>
+          <ion-label>{{ page.title }}</ion-label>
+        </ion-item>
+        <ion-item (click)="logout()">
+          <ion-icon name="log-out" slot="start" role="image"></ion-icon>
+          <ion-label>Log Out</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
     </ion-list>
   </ion-content>
 </ion-menu>

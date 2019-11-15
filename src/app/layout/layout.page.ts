@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { User } from '../models/user.interface';
+import { IonSlides } from '@ionic/angular';
 
 @Component({
   selector: 'app-layout',
@@ -9,6 +10,7 @@ import { User } from '../models/user.interface';
   styleUrls: ['./layout.page.scss']
 })
 export class LayoutPage implements OnInit {
+  
   public appPages = [
     {
       title: 'Perfil',
@@ -45,9 +47,10 @@ export class LayoutPage implements OnInit {
     }
   ];
 
-  public user: User;
+  public user: User = { email: '', firstName: '', isAdmin: false, lastName: '', cart: [], displayName: ''};
 
   constructor(private authService: AuthService, private router: Router) {}
+
 
   ngOnInit() {
     this.authService.getCurrentUser().then(user => {

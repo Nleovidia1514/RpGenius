@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
+import { ToastService } from '../services/toast.service';
+import {
+  FormGroup,
+  FormBuilder,
+  FormControl,
+  Validators
+} from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -8,29 +15,51 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.page.scss']
 })
 export class LoginPage implements OnInit {
-  email: string;
-  password: string;
+  loginFormGroup: FormGroup;
   showPassword = false;
   loading = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private toast: ToastService,
+    private formBuilder: FormBuilder
+  ) {}
 
-  ngOnInit() {}
+  ionViewDidLeave() {
+    this.loginFormGroup.get('email').reset();
+    this.loginFormGroup.get('password').reset();
+  }
+
+  ngOnInit() {
+    this.loginFormGroup = this.formBuilder.group({
+      email: new FormControl(
+        '',
+        Validators.compose([Validators.required, Validators.email])
+      ),
+      password: new FormControl(
+        '',
+        Validators.compose([Validators.required, Validators.minLength(6)])
+      )
+    });
+  }
 
   showPass() {
     this.showPassword = !this.showPassword;
   }
 
   login() {
+    console.log('hi');
     this.loading = true;
     this.authService
-      .loginUser({ email: this.email, password: this.password })
+      .loginUser(this.loginFormGroup.value)
       .then(res => {
         this.loading = false;
-        this.router.navigate(['layout', 'explore']);
+        this.router.navigateByUrl('/layout/explore');
       })
       .catch(err => {
         this.loading = false;
+        this.toast.show(err.message);
       });
   }
 }

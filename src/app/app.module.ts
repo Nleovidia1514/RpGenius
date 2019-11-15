@@ -17,10 +17,11 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { EmailValidator } from './validators/email.validator';
 import { ComponentsModule } from './components/components.module';
 import { HttpClientModule } from '@angular/common/http';
+import { CreateProductPage } from './pages/admin/create-product/create-product.page';
 
 @NgModule({
-  declarations: [AppComponent],
-  entryComponents: [],
+  declarations: [AppComponent, CreateProductPage],
+  entryComponents: [CreateProductPage],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
@@ -36,7 +37,7 @@ import { HttpClientModule } from '@angular/common/http';
   providers: [
     StatusBar,
     SplashScreen,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, 
     EmailValidator,
     AngularFireAuthGuard
   ],

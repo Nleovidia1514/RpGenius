@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button *ngIf="activeSlide === 0"></ion-menu-button>
+      <ion-button *ngIf="activeSlide !== 0" (click)="goBack()">
+        <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">WELCOME</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-slides [options]="{onlyExternal: true}">
+    <ion-slide>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12">
+            <ion-item *ngFor="let opt of options" (click)="moveTo(opt.index)">
+              <ion-icon slot="start" [name]="opt.icon"></ion-icon>
+              <ion-label>{{ opt.name }}</ion-label>
+              <ion-icon slot="end" name="arrow-forward"></ion-icon>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-slide>
+    <ion-slide>
+      <app-product-manager></app-product-manager>
+    </ion-slide>
+  </ion-slides>
+</ion-content>

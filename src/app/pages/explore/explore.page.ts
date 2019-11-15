@@ -4,6 +4,7 @@ import { IonSlides, IonInfiniteScroll } from '@ionic/angular';
 import { ProductsService } from 'src/app/services/products.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { User } from 'src/app/models/user.interface';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-explore',
@@ -14,13 +15,14 @@ export class ExplorePage implements OnInit {
   @ViewChild(IonSlides, { static: false }) slides: IonSlides;
   @ViewChild('ionInfScroll1', { static: false }) skinsScroll: IonInfiniteScroll;
   activeTab = 0;
-  skins: Product[];
+  skins: Product[] = [];
   user: User = {
     email: '',
     firstName: '',
     isAdmin: false,
     lastName: '',
-    cart: []
+    cart: [],
+    displayName: ''
   };
 
   exploreSegments = [
@@ -31,8 +33,17 @@ export class ExplorePage implements OnInit {
 
   constructor(
     private productsService: ProductsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private toast: ToastService
   ) {}
+
+  array(times: number) {
+    const range = [];
+    for (let i = 1; i < times + 1; i++) {
+      range.push(i);
+    }
+    return range;
+  }
 
   ngOnInit() {
     this.productsService.getSkins(true).subscribe(res => (this.skins = res));
@@ -57,6 +68,9 @@ export class ExplorePage implements OnInit {
   }
 
   addToCart = (product: Product) => {
-    this.productsService.addProductToCart(product).subscribe(res => this.user.cart.push(res));
+    this.productsService
+      .addProductToCart(product)
+      .subscribe(res => this.user.cart.push(res));
+    this.toast.show('Added to cart!');
   };
 }

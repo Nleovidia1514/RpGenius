@@ -17,7 +17,7 @@
           <ion-input
             type="text"
             class="input"
-            placeholder="First Name"
+            placeholder="Nombre"
             formControlName="firstName"
           ></ion-input>
         </ion-col>
@@ -25,8 +25,18 @@
           <ion-input
             type="text"
             class="input"
-            placeholder="Last Name"
+            placeholder="Apellido"
             formControlName="lastName"
+          ></ion-input>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-input
+            type="text"
+            class="input"
+            placeholder="Usuario"
+            formControlName="displayName"
           ></ion-input>
         </ion-col>
       </ion-row>
@@ -45,19 +55,19 @@
           <ion-input
             [type]="showPassword ? 'text' : 'password'"
             class="input"
-            placeholder="Password"
+            placeholder="Contraseña"
             formControlName="password"
           ></ion-input>
         </ion-col>
         <ion-col size="1">
           <ion-button
-          color="medium"
-          fill="clear"
-          class="ion-no-padding ion-no-margin"
-          (click)="showPass()"
-        >
-          <ion-icon slot="icon-only" name="eye"></ion-icon>
-        </ion-button>
+            color="medium"
+            fill="clear"
+            class="ion-no-padding ion-no-margin"
+            (click)="showPass()"
+          >
+            <ion-icon slot="icon-only" name="eye"></ion-icon>
+          </ion-button>
         </ion-col>
       </ion-row>
       <ion-row>
@@ -69,7 +79,7 @@
             type="submit"
             [disabled]="!registerFormGroup.valid"
           >
-            <strong>CREATE ACCOUNT</strong>
+            <strong>REGISTRARSE</strong>
           </ion-button>
         </ion-col>
       </ion-row>
@@ -114,7 +124,7 @@
             fill="outline"
             color="success"
           >
-            ALREADY HAVE AN ACCOUNT?
+            YA TIENES UNA CUENTA?
           </ion-button>
         </ion-col>
       </ion-row>

@@ -7,7 +7,7 @@ import {
   DocumentReference
 } from '@angular/fire/firestore';
 import { Product } from '../models/product.interface';
-import { map } from 'rxjs/operators';
+import { map, first } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AngularFireAuth } from '@angular/fire/auth';
@@ -18,17 +18,15 @@ import { User } from '../models/user.interface';
 })
 export class ProductsService {
   lastDoc: QueryDocumentSnapshot<Product>;
-  userDoc: AngularFirestoreDocument<User> = this.firestore.doc(
-    `users/${this.fAuth.auth.currentUser.uid}`
-  );
 
   constructor(
     private firestore: AngularFirestore,
     private http: HttpClient,
     private fAuth: AngularFireAuth
-  ) {}
+  ) {   
+  }
 
-  getSkins(first: boolean = false) {
+  getSkins(firstLoad: boolean = false) {
     // tslint:disable-next-line: max-line-length
     this.http
       .get(
@@ -36,12 +34,12 @@ export class ProductsService {
       )
       .subscribe(data => console.log(data));
     let query: AngularFirestoreCollection<Product>;
-    if (first) {
+    if (firstLoad) {
       query = this.firestore.collection<Product>('skins', ref =>
         ref
           .where('type', '==', 'skin')
           .orderBy('times_bought', 'asc')
-          .limit(25)
+          .limit(15)
       );
     } else {
       query = this.firestore.collection<Product>('skins', ref =>
@@ -49,7 +47,7 @@ export class ProductsService {
           .where('type', '==', 'skin')
           .orderBy('times_bought', 'asc')
           .startAfter(this.lastDoc)
-          .limit(25)
+          .limit(15)
       );
     }
 
@@ -100,9 +98,26 @@ export class ProductsService {
     return bundles;
   }
 
-  getProduct(product: DocumentReference) {
+  getAllProducts() {
+    const products = this.firestore
+      .collection<Product>('skins')
+      .snapshotChanges()
+      .pipe(
+        map(actions => {
+          return actions.map(a => {
+            const data = a.payload.doc.data();
+            const id = a.payload.doc.id;
+            return { id, ...data };
+          });
+        })
+      );
+    console.log(products);
+    return products;
+  }
+
+  getProduct(productId: string) {
     const pro: Observable<Product> = this.firestore
-      .doc<Product>(product)
+      .doc<Product>('skins/' + productId)
       .get()
       .pipe(
         map(doc => {
@@ -124,7 +139,10 @@ export class ProductsService {
   }
 
   addProductToCart(product: Product) {
-    return this.userDoc.get().pipe(
+    const userDoc = this.firestore.doc(
+      `users/${this.fAuth.auth.currentUser.uid}`
+    );
+    return userDoc.get().pipe(
       map(doc => {
         const cart = doc.data().cart;
         const index = cart.findIndex(prod => prod.ref.id === product.id);
@@ -138,17 +156,21 @@ export class ProductsService {
           toUpdate.quantity += 1;
           cart[index] = toUpdate;
         }
-        this.userDoc.update({ cart });
+        userDoc.update({ cart });
         if (newP) {
           return { quantity: 1, ref: prodDoc.ref };
         }
         return { quantity: toUpdate.quantity, ref: prodDoc.ref };
-      })
+      }),
+      first()
     );
   }
 
   removeProductFromCart(product: Product, whole = false) {
-    return this.userDoc.get().pipe(
+    const userDoc = this.firestore.doc(
+      `users/${this.fAuth.auth.currentUser.uid}`
+    );
+    return userDoc.get().pipe(
       map(doc => {
         const cart = doc.data().cart;
         const index = cart.findIndex(prod => prod.ref.id === product.id);
@@ -156,8 +178,26 @@ export class ProductsService {
         if (cart[index].quantity === 0 || whole) {
           cart.splice(index, 1);
         }
-        this.userDoc.update({ cart });
-      })
+        userDoc.update({ cart });
+      }),
+      first()
     );
+  }
+
+  addNewProduct(product: Product) {
+    return this.firestore.collection<Product>('skins').add({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      discount: product.discount,
+      type: product.type,
+      availability: product.availability,
+      image: product.image,
+      times_bought: 0
+    });
+  }
+
+  deleteProduct(product: Product) {
+    return this.firestore.doc('skins/'+ product.id).delete();
   }
 }

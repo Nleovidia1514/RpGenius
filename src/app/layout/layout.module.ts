@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
@@ -19,7 +19,24 @@ const routes: Routes = [
     path: '',
     component: LayoutPage,
     children: [
-      { path: 'profile', component: ProfilePage },
+      {
+        path: 'profile',
+        component: ProfilePage
+      },
+      {
+        path: 'admin',
+        children: [
+          {
+            path: '',
+            loadChildren: '../pages/admin/admin.module#AdminPageModule'
+          },
+          {
+            path: 'product/modify/:productId',
+            loadChildren:
+              '../pages/admin/modify-product/modify-product.module#ModifyProductPageModule'
+          }
+        ]
+      },
       { path: 'explore', component: ExplorePage },
       { path: 'cart', component: CartPage },
       { path: 'contact', component: ContactPage },
@@ -33,14 +50,15 @@ const routes: Routes = [
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     IonicModule,
     RouterModule.forChild(routes),
     ComponentsModule
   ],
   declarations: [
+    ProfilePage,
     LayoutPage,
     ExplorePage,
-    ProfilePage,
     CartPage,
     ContactPage,
     FaqPage,

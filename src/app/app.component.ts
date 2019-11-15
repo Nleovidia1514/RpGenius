@@ -4,7 +4,9 @@ import { Platform, NavController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from './services/auth.service';
+import { LayoutPage } from './layout/layout.page';
 
 @Component({
   selector: 'app-root',
@@ -17,23 +19,26 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private fAuth: AngularFireAuth,
+    private activeRoute: ActivatedRoute,
     private router: Router
   ) {
     this.initializeApp();
   }
 
   initializeApp() {
-    const authObserver = this.fAuth.authState.subscribe(user => {
-      if (user) {
-        console.log(user);
-        authObserver.unsubscribe();
-      } else {
-        authObserver.unsubscribe();
-      }
-    });
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+      this.fAuth.authState.subscribe(user => {
+      const shouldRedirect = this.activeRoute.firstChild.firstChild.component !== LayoutPage;
+      if (user && !shouldRedirect) {
+        this.router.navigateByUrl('/layout/explore');
+        console.log(user);
+      } else {
+        this.router.navigateByUrl('/login');
+        console.log(user);
+      }
+    });
     });
   }
 

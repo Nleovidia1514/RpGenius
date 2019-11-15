@@ -10,7 +10,8 @@ const routes: Routes = [
   },
   { path: 'login', loadChildren: './login/login.module#LoginPageModule' },
   { path: 'register', loadChildren: './register/register.module#RegisterPageModule' },
-  { path: 'layout', loadChildren: './layout/layout.module#LayoutPageModule',  canActivate: [AngularFireAuthGuard] }
+  { path: 'layout', loadChildren: './layout/layout.module#LayoutPageModule' },
+  { path: 'modify-product', loadChildren: './pages/admin/modify-product/modify-product.module#ModifyProductPageModule' }
 ];
 
 @NgModule({

@@ -15,7 +15,8 @@ export class CartPage implements OnInit {
     firstName: '',
     isAdmin: false,
     lastName: '',
-    cart: []
+    cart: [], 
+    displayName: ''
   };
   cartProducts: Product[] = [];
   total = 0;
@@ -32,7 +33,7 @@ export class CartPage implements OnInit {
       this.user = user;
       this.cartProducts = [];
       this.user.cart.forEach(product => {
-        this.productsService.getProduct(product.ref).subscribe(p => {
+        this.productsService.getProduct(product.ref.id).subscribe(p => {
           this.cartProducts.push(p);
           this.calculateTotal();
         });
