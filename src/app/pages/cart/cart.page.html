@@ -145,7 +145,7 @@
       Detalle
     </ion-card-subtitle>
     <ion-card-content>
-      <ion-item-group class="ion-margin-bottom">
+      <ion-item-group class="ion-margin-bottom" *ngIf="user">
         <ion-item
           class="ion-no-margin"
           *ngFor="let product of cartProducts"

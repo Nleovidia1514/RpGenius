@@ -6,9 +6,9 @@
     <ion-title>Explorar</ion-title>
     <ion-buttons slot="end">
       <ion-button routerLink="/layout/cart">
-        <ion-icon name="cart" slot="start" ></ion-icon>
-        <ion-badge color="primary" slot="end" color="danger">
-          {{ user.cart.length }}
+        <ion-icon name="cart" slot="start"></ion-icon>
+        <ion-badge color="primary" slot="end" color="danger" *ngIf="user">
+          {{ cartTotal() }}
         </ion-badge>
       </ion-button>
     </ion-buttons>
@@ -42,28 +42,40 @@
                   ></app-product>
                 </ion-col>
               </ng-container>
-              <ng-container *ngIf="skins.length === 0">
-                <ion-col size="6" *ngFor="let i of array(4)">
-                  <ion-card>
-                    <ion-card-header>
-                      <ion-thumbnail class="ion-text-center" width="100%">
-                        <ion-skeleton-text></ion-skeleton-text>
-                      </ion-thumbnail>
-                    </ion-card-header>
-
-                    <ion-card-content>
-                      <ion-skeleton-text animated></ion-skeleton-text>
-                      <ion-skeleton-text animated></ion-skeleton-text>
-                    </ion-card-content>
-                  </ion-card>
-                </ion-col>
-              </ng-container>
             </ion-row>
           </ion-grid>
+          <app-explore-skeleton
+            *ngIf="skins.length === 0"
+          ></app-explore-skeleton>
         </ion-infinite-scroll-content>
       </ion-infinite-scroll>
     </ion-slide>
-    <ion-slide></ion-slide>
-    <ion-slide></ion-slide>
+    <ion-slide>
+      <ion-grid>
+        <ion-row>
+          <ng-container *ngIf="cards.length !== 0">
+            <ion-col size="6" *ngFor="let card of cards">
+              <app-product [product]="card" [cartAdd]="addToCart"></app-product>
+            </ion-col>
+          </ng-container>
+        </ion-row>
+      </ion-grid>
+      <app-explore-skeleton *ngIf="cards.length === 0"></app-explore-skeleton>
+    </ion-slide>
+    <ion-slide>
+      <ion-grid>
+        <ion-row>
+          <ng-container *ngIf="bundles.length !== 0">
+            <ion-col size="6" *ngFor="let bundle of bundles">
+              <app-product
+                [product]="bundle"
+                [cartAdd]="addToCart"
+              ></app-product>
+            </ion-col>
+          </ng-container>
+        </ion-row>
+      </ion-grid>
+      <app-explore-skeleton *ngIf="bundles.length === 0"></app-explore-skeleton>
+    </ion-slide>
   </ion-slides>
 </ion-content>

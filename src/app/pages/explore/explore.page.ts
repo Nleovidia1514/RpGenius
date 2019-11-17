@@ -16,14 +16,9 @@ export class ExplorePage implements OnInit {
   @ViewChild('ionInfScroll1', { static: false }) skinsScroll: IonInfiniteScroll;
   activeTab = 0;
   skins: Product[] = [];
-  user: User = {
-    email: '',
-    firstName: '',
-    isAdmin: false,
-    lastName: '',
-    cart: [],
-    displayName: ''
-  };
+  cards: Product[] = [];
+  bundles: Product[] = [];
+  user: User;
 
   exploreSegments = [
     { name: 'Skins' },
@@ -37,17 +32,20 @@ export class ExplorePage implements OnInit {
     private toast: ToastService
   ) {}
 
-  array(times: number) {
-    const range = [];
-    for (let i = 1; i < times + 1; i++) {
-      range.push(i);
-    }
-    return range;
-  }
-
   ngOnInit() {
     this.productsService.getSkins(true).subscribe(res => (this.skins = res));
-    this.authService.getCurrentUser().then(user => (this.user = user));
+    this.productsService.getRpCards().subscribe(res => (this.cards = res));
+    this.productsService.getBundles().subscribe(res => (this.bundles = res));
+    const authOb = this.authService.getCurrentUser().subscribe(userDocObs => {
+      return userDocObs.subscribe(user => {
+        if (user) {
+          this.user = user;
+        } else {
+          this.user = null;
+        }
+        authOb.unsubscribe();
+      });
+    });
   }
 
   loadMoreSkins() {
@@ -64,6 +62,7 @@ export class ExplorePage implements OnInit {
   }
 
   async slideChange() {
+    const activeIndex = await this.slides.getActiveIndex();
     this.activeTab = await this.slides.getActiveIndex();
   }
 
@@ -73,4 +72,12 @@ export class ExplorePage implements OnInit {
       .subscribe(res => this.user.cart.push(res));
     this.toast.show('Added to cart!');
   };
+
+  cartTotal() {
+    let total = 0;
+    this.user.cart.forEach(prod => {
+      total += prod.quantity;
+    });
+    return total;
+  }
 }

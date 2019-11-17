@@ -5,7 +5,7 @@ import {
   FormControl,
   Validators
 } from '@angular/forms';
-import { ModalController, IonImg, AlertController } from '@ionic/angular';
+import { ModalController, IonImg, AlertController, IonInput } from '@ionic/angular';
 import { ProductsService } from 'src/app/services/products.service';
 import { ToastService } from 'src/app/services/toast.service';
 
@@ -15,7 +15,7 @@ import { ToastService } from 'src/app/services/toast.service';
   styleUrls: ['./create-product.page.scss']
 })
 export class CreateProductPage implements OnInit {
-  // @ViewChild('productImg', { static: false }) prodImg: IonImg;
+  @ViewChild('productImg', { static: false }) productImg: IonInput;
   productFormGroup: FormGroup;
   imgIsLoading = false;
   prodImg: string;
@@ -44,16 +44,15 @@ export class CreateProductPage implements OnInit {
     this.modalCtrl.dismiss();
   }
 
-  array(times: number) {
+  array(times: number, start: number = 0) {
     const range = [];
-    for (let i = 1; i < times + 1; i++) {
+    for (let i = start; i < times + 1; i++) {
       range.push(i);
     }
     return range;
   }
 
   addNewProduct() {
-    console.log(this.productFormGroup.value);
     this.productsService
       .addNewProduct(this.productFormGroup.value)
       .then(product => {
@@ -78,7 +77,7 @@ export class CreateProductPage implements OnInit {
           {
             text: 'INSERT URL',
             handler: alertData => {
-              this.productFormGroup.value.image = alertData.url;
+              this.productImg.value = alertData.url;
             }
           }
         ]
@@ -87,6 +86,7 @@ export class CreateProductPage implements OnInit {
   }
 
   selectImageFromGallery() {
+    console.log(this.productFormGroup);
     this.alertCtrl
       .create({
         header: 'NO SIRVE'

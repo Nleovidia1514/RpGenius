@@ -23,16 +23,9 @@ export class ProductsService {
     private firestore: AngularFirestore,
     private http: HttpClient,
     private fAuth: AngularFireAuth
-  ) {   
-  }
+  ) {}
 
   getSkins(firstLoad: boolean = false) {
-    // tslint:disable-next-line: max-line-length
-    this.http
-      .get(
-        'http://ddragon.leagueoflegends.com/cdn/9.22.1/data/en_US/champion/MasterYi.json?api_key=RGAPI-e1aaa260-cee1-4606-a37a-72d153e0f8e4'
-      )
-      .subscribe(data => console.log(data));
     let query: AngularFirestoreCollection<Product>;
     if (firstLoad) {
       query = this.firestore.collection<Product>('skins', ref =>
@@ -94,7 +87,6 @@ export class ProductsService {
           });
         })
       );
-    console.log(bundles);
     return bundles;
   }
 
@@ -111,7 +103,6 @@ export class ProductsService {
           });
         })
       );
-    console.log(products);
     return products;
   }
 
@@ -167,7 +158,7 @@ export class ProductsService {
   }
 
   removeProductFromCart(product: Product, whole = false) {
-    const userDoc = this.firestore.doc(
+    const userDoc = this.firestore.doc<User>(
       `users/${this.fAuth.auth.currentUser.uid}`
     );
     return userDoc.get().pipe(
@@ -198,6 +189,19 @@ export class ProductsService {
   }
 
   deleteProduct(product: Product) {
-    return this.firestore.doc('skins/'+ product.id).delete();
+    return this.firestore.doc<Product>('skins/' + product.id).delete();
+  }
+
+  modifyProduct(product: Product) {
+    return this.firestore.doc<Product>('skins/' + product.id).update({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      discount: product.discount,
+      type: product.type,
+      availability: product.availability,
+      image: product.image,
+      times_bought: 0
+    });
   }
 }

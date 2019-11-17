@@ -2,36 +2,52 @@ import { FormControl } from '@angular/forms';
 import { Injectable } from '@angular/core';
 
 import { AngularFirestore } from '@angular/fire/firestore';
-import { map } from 'rxjs/operators';
+import { map, first } from 'rxjs/operators';
 import { User } from '../models/user.interface';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { ToastService } from '../services/toast.service';
 
 @Injectable()
 export class EmailValidator {
   private debouncer: any;
 
-  constructor(private firestore: AngularFirestore) {}
+  constructor(private fAuth: AngularFireAuth, private toast: ToastService) {}
 
   validEmail(fc: FormControl) {
     clearTimeout(this.debouncer);
 
     return new Promise(resolve => {
       this.debouncer = setTimeout(() => {
-        console.log(fc.value);
-        this.firestore
-          .collection<any>('users', ref => ref.where('email', '==', fc.value))
-          .snapshotChanges()
-          .pipe(
-            map(actions =>
-              actions.map(a => {
-                const data = a.payload.doc.data();
-                const id = a.payload.doc.id;
-                return { id, ...data };
-              })
-            )
-          )
-          .subscribe((userList: User[]) => {
-            if (userList.length !== 0) { resolve({ emailInUse: true }); } else { resolve(null); }
-          });
+        this.fAuth.auth.fetchSignInMethodsForEmail(fc.value).then(methods => {
+          if (methods.length !== 0) {
+            this.toast.show('This email is already in use!');
+            resolve({ emailInUse: true });
+          } else {
+            resolve(null);
+          }
+        });
+      }, 1000);
+    });
+  }
+
+  validModify(fc: FormControl) {
+    clearTimeout(this.debouncer);
+    return new Promise(resolve => {
+      this.debouncer = setTimeout(() => {
+        this.fAuth.auth.fetchSignInMethodsForEmail(fc.value).then(methods => {
+          if (methods.length !== 0) {
+            this.fAuth.authState.subscribe(user => {
+              if (user.email === fc.value) {
+                resolve(null);
+              } else {
+                this.toast.show('This email is already in use!');
+                resolve({ emailInUse: true });
+              }
+            });
+          } else {
+            resolve(null);
+          }
+        });
       }, 1000);
     });
   }

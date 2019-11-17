@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/admin"></ion-back-button>
+      <ion-back-button defaultHref="/layout/admin"></ion-back-button>
     </ion-buttons>
     <ion-title>Modificar Producto</ion-title>
   </ion-toolbar>
@@ -9,30 +9,118 @@
 
 <ion-content>
   <ng-container *ngIf="loadedProduct">
-    <ion-grid class="ion-no-padding">
-      <ion-row>
-        <ion-col class="ion-no-padding">
-          <ion-img [src]="loadedProduct.image"></ion-img>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <h1>{{ loadedProduct.name }}</h1>
+    <form [formGroup]="productFormGroup" (ngSubmit)="saveChanges()">
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <ion-col class="ion-no-padding uk-vertical-align">
+            <ion-img [src]="loadedProduct.image"></ion-img>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="8">
+            <ion-input #name formControlName="name" readonly></ion-input>
+          </ion-col>
+          <ion-col size="1">
+            <ion-button fill="clear" (click)="allowModify('name')">
+              <ion-icon name="create" slot="icon-only" color="dark"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
 
-          <h2>{{ loadedProduct.price | currency }}</h2>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col>
-          <ion-text>
-            <p>{{ loadedProduct.description }}</p>
-          </ion-text>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-textarea
+              #description
+              formControlName="description"
+              readonly
+            ></ion-textarea>
+            <ion-button fill="clear" (click)="allowModify('description')">
+              <ion-icon name="create" slot="icon-only" color="dark"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4">
+            <ion-item>
+              <ion-label position="floating">Price</ion-label>
+              <ion-input
+                type="number"
+                formControlName="price"
+                min="0"
+                #price
+                readonly
+              ></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col size="2">
+            <ion-button fill="clear" (click)="allowModify('price')">
+              <ion-icon name="create" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-label position="floating">Discount</ion-label>
+              <ion-select
+                interface="action-sheet"
+                [interfaceOptions]="{ header: 'Discount %' }"
+                formControlName="discount"
+              >
+                <ion-select-option
+                  *ngFor="let disc of array(100)"
+                  [value]="disc"
+                >
+                  {{ disc }}%
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label position="floating">Times Bought</ion-label>
+              <ion-input
+                formControlName="times_bought"
+                type="number"
+                min="0"
+              ></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label position="floating">Availability</ion-label>
+              <ion-input
+                formControlName="availability"
+                type="number"
+              ></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label position="floating">Type</ion-label>
+              <ion-select interface="popover" formControlName="type">
+                <ion-select-option value="skin">Skin</ion-select-option>
+                <ion-select-option value="card">RP Card</ion-select-option>
+                <ion-select-option value="bundle">Bundle</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-button expand="block" type="submit" color="success">
+              SAVE CHANGES
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </form>
   </ng-container>
-  <ng-container class="ion-text-center" *ngIf="!loadedProduct">
-    <ion-spinner class="ion-margin"></ion-spinner>
+  <ng-container *ngIf="!loadedProduct">
+    <ion-spinner class="ion-margin ion-text-center"></ion-spinner>
   </ng-container>
 </ion-content>

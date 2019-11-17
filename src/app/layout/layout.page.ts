@@ -10,7 +10,6 @@ import { IonSlides } from '@ionic/angular';
   styleUrls: ['./layout.page.scss']
 })
 export class LayoutPage implements OnInit {
-  
   public appPages = [
     {
       title: 'Perfil',
@@ -47,14 +46,16 @@ export class LayoutPage implements OnInit {
     }
   ];
 
-  public user: User = { email: '', firstName: '', isAdmin: false, lastName: '', cart: [], displayName: ''};
+  public user: User;
 
   constructor(private authService: AuthService, private router: Router) {}
 
-
   ngOnInit() {
-    this.authService.getCurrentUser().then(user => {
-     this.user = user;
+    const authOb = this.authService.getCurrentUser().subscribe(userDocObs => {
+      userDocObs.subscribe(user => {
+        this.user = user;
+        authOb.unsubscribe();
+      });
     });
   }
 

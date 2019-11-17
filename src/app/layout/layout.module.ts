@@ -21,7 +21,26 @@ const routes: Routes = [
     children: [
       {
         path: 'profile',
-        component: ProfilePage
+        children: [
+          {
+            path: '',
+            loadChildren: '../pages/profile/profile.module#ProfilePageModule'
+          },
+          {
+            path: 'data',
+            loadChildren: '../pages/profile/data/data.module#DataPageModule'
+          },
+          {
+            path: 'purchases',
+            loadChildren:
+              '../pages/profile/purchases/purchases.module#PurchasesPageModule'
+          },
+          {
+            path: 'securiy',
+            loadChildren:
+              '../pages/profile/security/security.module#SecurityPageModule'
+          }
+        ]
       },
       {
         path: 'admin',
@@ -56,7 +75,6 @@ const routes: Routes = [
     ComponentsModule
   ],
   declarations: [
-    ProfilePage,
     LayoutPage,
     ExplorePage,
     CartPage,

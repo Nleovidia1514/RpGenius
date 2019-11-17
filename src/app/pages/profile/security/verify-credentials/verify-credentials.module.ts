@@ -5,23 +5,23 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
 
-import { ModifyProductPage } from './modify-product.page';
+import { VerifyCredentialsPage } from './verify-credentials.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: ModifyProductPage
+    component: VerifyCredentialsPage
   }
 ];
 
 @NgModule({
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     FormsModule,
+    ReactiveFormsModule,
     IonicModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [ModifyProductPage]
+  declarations: [VerifyCredentialsPage]
 })
-export class ModifyProductPageModule {}
+export class VerifyCredentialsPageModule {}

@@ -8,6 +8,7 @@ import {
   FormControl,
   Validators
 } from '@angular/forms';
+import { NavController, Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-login',
@@ -18,15 +19,24 @@ export class LoginPage implements OnInit {
   loginFormGroup: FormGroup;
   showPassword = false;
   loading = false;
+  backSubs: any;
 
   constructor(
     private authService: AuthService,
-    private router: Router,
+    private platform: Platform,
+    private nav: NavController,
     private toast: ToastService,
     private formBuilder: FormBuilder
   ) {}
 
+  ionViewDidEnter() {
+    this.backSubs = this.platform.backButton.subscribeWithPriority(1, () => {
+      navigator['app'].exitApp();
+    });
+  }
+
   ionViewDidLeave() {
+    this.backSubs.unsubscribe();
     this.loginFormGroup.get('email').reset();
     this.loginFormGroup.get('password').reset();
   }
@@ -52,10 +62,10 @@ export class LoginPage implements OnInit {
     console.log('hi');
     this.loading = true;
     this.authService
-      .loginUser(this.loginFormGroup.value)
+      .loginWithEmailAndPass(this.loginFormGroup.value)
       .then(res => {
         this.loading = false;
-        this.router.navigateByUrl('/layout/explore');
+        this.nav.navigateRoot('/layout/explore');
       })
       .catch(err => {
         this.loading = false;

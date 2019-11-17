@@ -50,7 +50,7 @@ export class RegisterPage implements OnInit {
         message: 'Please wait...'
       })
       .then(loading => loading.present());
-    this.authService.registerUser(this.registerFormGroup.value)
+    this.authService.registerWithEmailAndPass(this.registerFormGroup.value)
     .then((res: string) => {
       this.loadingCtrl.dismiss();
       if (res !== null) {

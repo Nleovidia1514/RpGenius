@@ -18,10 +18,11 @@ import { EmailValidator } from './validators/email.validator';
 import { ComponentsModule } from './components/components.module';
 import { HttpClientModule } from '@angular/common/http';
 import { CreateProductPage } from './pages/admin/create-product/create-product.page';
+import { VerifyCredentialsPage } from './pages/profile/security/verify-credentials/verify-credentials.page';
 
 @NgModule({
-  declarations: [AppComponent, CreateProductPage],
-  entryComponents: [CreateProductPage],
+  declarations: [AppComponent, CreateProductPage, VerifyCredentialsPage],
+  entryComponents: [CreateProductPage, VerifyCredentialsPage],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
@@ -37,7 +38,7 @@ import { CreateProductPage } from './pages/admin/create-product/create-product.p
   providers: [
     StatusBar,
     SplashScreen,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, 
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     EmailValidator,
     AngularFireAuthGuard
   ],

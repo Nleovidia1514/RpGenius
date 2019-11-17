@@ -8,6 +8,9 @@ import {
 import { User } from 'src/app/models/user.interface';
 import { AuthService } from 'src/app/services/auth.service';
 import { EmailValidator } from 'src/app/validators/email.validator';
+import { ToastService } from 'src/app/services/toast.service';
+import { ModalController } from '@ionic/angular';
+import { VerifyCredentialsPage } from '../security/verify-credentials/verify-credentials.page';
 
 @Component({
   selector: 'app-data',
@@ -16,62 +19,50 @@ import { EmailValidator } from 'src/app/validators/email.validator';
 })
 export class DataPage implements OnInit {
   dataFormGroup: FormGroup;
-  user: User = {
-    email: '',
-    firstName: '',
-    isAdmin: false,
-    lastName: '',
-    cart: [],
-    displayName: ''
-  };
+  user: User;
+  changesSent = false;
 
   constructor(
     private authService: AuthService,
     private formBuilder: FormBuilder,
-    private emailVal: EmailValidator
+    private emailVal: EmailValidator,
+    private toast: ToastService,
+    private modalCtrl: ModalController
   ) {}
 
   ngOnInit() {
-    this.dataFormGroup = this.formBuilder.group({
-      firstName: new FormControl(
-        'user.firstName',
-        Validators.required,
-        (fc: FormControl) => this.isEqual(fc, 'firstName')
-      ),
-      lastName: new FormControl(
-        'user.lastName',
-        Validators.required,
-        (fc: FormControl) => this.isEqual(fc, 'lastName')
-      ),
-      email: new FormControl(
-        'user.email',
-        Validators.compose([Validators.required, Validators.email]),
-        [
-          (fc: FormControl) => this.emailVal.validEmail(fc),
-          (fc: FormControl) => this.isEqual(fc, 'lastName')
-        ]
-      )
+    const authOb = this.authService.getCurrentUser().subscribe(userDocObs => {
+      userDocObs.subscribe(user => {
+        this.user = user;
+        this.dataFormGroup = this.formBuilder.group({
+          firstName: new FormControl(user.firstName, Validators.required),
+          lastName: new FormControl(user.lastName, Validators.required),
+          displayName: new FormControl(user.displayName, Validators.required),
+          email: new FormControl(
+            user.email,
+            Validators.compose([Validators.required, Validators.email]),
+            [(fc: FormControl) => this.emailVal.validModify(fc)]
+          )
+        });
+      });
+      authOb.unsubscribe();
     });
   }
 
-  ionViewDidEnter() {
-    
-
-    this.authService.getCurrentUser().then(user => {
-      this.user = user;
-      
-    });
-  }
-
-  saveChanges() {}
-
-  isEqual(fc: FormControl, field: string) {
-    return new Promise(resolve => {
-      if (this.user[field] === fc.value) {
-        resolve(null);
-      } else {
-        resolve({ equal: true });
-      }
-    });
+  saveChanges() {
+    const values = this.dataFormGroup.value;
+    this.user.firstName = values.firstName;
+    this.user.lastName = values.lastName;
+    this.user.displayName = values.displayName;
+    this.user.email = values.email;
+    this.changesSent = true;
+    this.modalCtrl
+      .create({
+        component: VerifyCredentialsPage,
+        componentProps: {
+          updateValues: this.user
+        }
+      })
+      .then(modal => modal.present());
   }
 }

@@ -3,7 +3,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { User } from '../models/user.interface';
 import { map, first } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 
 interface RegisterValues {
   firstName: string;
@@ -28,39 +28,25 @@ export class AuthService {
   ) {}
 
   getCurrentUser() {
-    return new Promise<User>(resolve => {
-      this.fAuth.authState
-        .pipe(
-          first(),
-          map(user => {
-            if (user !== null) {
-              return this.firestore
-              .doc<User>(`users/${user.uid}`)
-              .get()
-              .pipe(
-                first(),
-                map(doc => {
-                  return { ...doc.data() } as User;
-                })
-              );
-            } else {
-              return of(null);
-            } 
-          })
-        )
-        .subscribe(userDocObs => {
-          userDocObs.subscribe(user => {
-            if (user) {
-              resolve(user);
-            } else {
-              resolve(null);
-            }
-          });
-        });
-    });
+    return this.fAuth.authState.pipe(
+      map(user => {
+        if (user !== null) {
+          return this.firestore
+            .doc<User>(`users/${user.uid}`)
+            .snapshotChanges()
+            .pipe(
+              map(doc => {
+                return { ...doc.payload.data(), email: user.email } as User;
+              })
+            );
+        } else {
+          return of(null);
+        }
+      })
+    );
   }
 
-  registerUser(values: RegisterValues) {
+  registerWithEmailAndPass(values: RegisterValues) {
     return new Promise(resolve => {
       this.fAuth.auth
         .createUserWithEmailAndPassword(values.email, values.password)
@@ -71,19 +57,45 @@ export class AuthService {
             firstName: values.firstName,
             lastName: values.lastName,
             displayName: values.displayName,
-            email: values.email,
             cart: [],
             isAdmin: false
           });
           resolve(null);
         })
         .catch(err => {
+          console.error(err);
           resolve(err.message);
         });
     });
   }
 
-  loginUser(values: LoginValues) {
+  modifyUser(values: User) {
+    return new Promise<User>((resolve, reject) => {
+      this.fAuth.authState.pipe(first()).subscribe(user => {
+        if (user) {
+          user.updateEmail(values.email);
+          this.firestore
+            .doc<User>('users/' + user.uid)
+            .update({
+              firstName: values.firstName,
+              lastName: values.lastName,
+              displayName: values.displayName,
+              cart: values.cart,
+              isAdmin: values.isAdmin
+            })
+            .then(res => {
+              resolve(null);
+            })
+            .catch(err => {
+              console.error(err);
+              reject(err);
+            });
+        }
+      });
+    });
+  }
+
+  loginWithEmailAndPass(values: LoginValues) {
     return new Promise((resolve, reject) => {
       this.fAuth.auth
         .signInWithEmailAndPassword(values.email, values.password)

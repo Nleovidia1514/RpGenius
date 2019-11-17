@@ -19,8 +19,7 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private fAuth: AngularFireAuth,
-    private activeRoute: ActivatedRoute,
-    private router: Router
+    private nav: NavController,
   ) {
     this.initializeApp();
   }
@@ -30,16 +29,13 @@ export class AppComponent {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
       this.fAuth.authState.subscribe(user => {
-      const shouldRedirect = this.activeRoute.firstChild.firstChild.component !== LayoutPage;
-      if (user && !shouldRedirect) {
-        this.router.navigateByUrl('/layout/explore');
-        console.log(user);
-      } else {
-        this.router.navigateByUrl('/login');
-        console.log(user);
-      }
-    });
+        if (user) {
+          this.nav.navigateRoot(['/layout/explore']);
+        } else {
+          this.nav.navigateRoot('/login');
+          console.log(user);
+        }
+      });
     });
   }
-
 }

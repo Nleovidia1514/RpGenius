@@ -10,14 +10,7 @@ import { ProductsService } from 'src/app/services/products.service';
   styleUrls: ['./cart.page.scss']
 })
 export class CartPage implements OnInit {
-  user: User = {
-    email: '',
-    firstName: '',
-    isAdmin: false,
-    lastName: '',
-    cart: [], 
-    displayName: ''
-  };
+  user: User;
   cartProducts: Product[] = [];
   total = 0;
 
@@ -26,20 +19,25 @@ export class CartPage implements OnInit {
     private productsService: ProductsService
   ) {}
 
-  ngOnInit() {}
-
-  ionViewDidEnter() {
-    this.authService.getCurrentUser().then(user => {
-      this.user = user;
-      this.cartProducts = [];
-      this.user.cart.forEach(product => {
-        this.productsService.getProduct(product.ref.id).subscribe(p => {
-          this.cartProducts.push(p);
-          this.calculateTotal();
+  ngOnInit() {
+    const authOb = this.authService.getCurrentUser().subscribe(userDocObs => {
+      userDocObs.subscribe(user => {
+        this.user = user;
+        this.user.cart.forEach(product => {
+          this.productsService.getProduct(product.ref.id).subscribe(p => {
+            if (this.cartProducts.findIndex(pro => pro.name === p.name) < 0) {
+              this.cartProducts.push(p);
+              this.calculateTotal();
+            }
+          });
         });
+        
+        authOb.unsubscribe();
       });
     });
   }
+
+  ionViewDidEnter() {}
 
   checkout() {}
 

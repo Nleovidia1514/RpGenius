@@ -1,14 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { User } from 'src/app/models/user.interface';
 import { AuthService } from 'src/app/services/auth.service';
-import { NavController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
-  styleUrls: ['./profile.page.scss'],
+  styleUrls: ['./profile.page.scss']
 })
-export class ProfilePage implements OnInit {
+export class ProfilePage implements OnInit, OnDestroy {
   options = [
     {
       name: 'Mis Datos',
@@ -21,16 +21,33 @@ export class ProfilePage implements OnInit {
     {
       name: 'Seguridad',
       url: 'security'
+    },
+    {
+      name: 'Eliminar Cuenta',
+      url: 'delete'
     }
   ];
 
-  user: User = { email: '', firstName: '', isAdmin: false, lastName: '', cart: [], displayName: ''};
+  obs: Subscription[];
+  user: User;
 
-
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   ngOnInit() {
-    this.authService.getCurrentUser().then(user => this.user = user);
+    this.obs.push(
+      this.authService.getCurrentUser().subscribe(userDocsObs => {
+        this.obs.push(
+          userDocsObs.subscribe(user => {
+            this.user = user;
+          })
+        );
+      })
+    );
   }
 
+  ngOnDestroy() {
+    this.obs.forEach(ob => {
+      ob.unsubscribe();
+    });
+  }
 }

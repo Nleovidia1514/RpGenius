@@ -1,30 +1,73 @@
 <ion-header>
   <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/layout/profile"></ion-back-button>
+    </ion-buttons>
     <ion-title>Datos Personales</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <form [formGroup]="dataFormGroup">
-    <ion-input class="input" formControlName="firstName">
-      <ion-label position="floating">
-        Primer Nombre
-      </ion-label>
-    </ion-input>
-    <ion-input class="input" formControlName="lastName">
-      <ion-label position="floating">
-        Apellido
-      </ion-label>
-    </ion-input>
-    <ion-input class="input" formControlName="email">
-      <ion-label position="floating">Email</ion-label>
-    </ion-input>
-    <ion-row>
-      <ion-col size="4" offset="4">
-        <ion-button color="success" type="submit" expand="block">
-          <ion-label>Save Changes</ion-label>
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </form>
+  <ng-container *ngIf="user">
+    <form [formGroup]="dataFormGroup" (ngSubmit)="saveChanges()">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label position="floating">
+                Primer Nombre
+              </ion-label>
+              <ion-input formControlName="firstName"></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label position="floating">
+                Apellido
+              </ion-label>
+              <ion-input formControlName="lastName"></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label position="floating">Usuario</ion-label>
+              <ion-input formControlName="displayName"></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label position="floating">Email</ion-label>
+              <ion-input formControlName="email"></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6" offset="3">
+            <ion-button
+              color="success"
+              type="submit"
+              expand="block"
+              [disabled]="!dataFormGroup.valid || changesSent"
+            >
+              <span *ngIf="!changesSent">Save Changes</span>
+              <ion-spinner
+                *ngIf="changesSent"
+                class="ion-text-center"
+              ></ion-spinner>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </form>
+  </ng-container>
+
+  <ng-container *ngIf="!user">
+    <ion-spinner class="center"></ion-spinner>
+  </ng-container>
 </ion-content>
