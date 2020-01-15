@@ -13,69 +13,72 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar color="primary">
-    <ion-segment (ionChange)="segmentChanged()" [(ngModel)]="activeTab">
-      <ion-segment-button
-        *ngFor="let segment of exploreSegments; let i = index"
-        [value]="i"
-      >
-        <ion-text>
-          {{ segment.name }}
-        </ion-text>
-      </ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-slides (ionSlideDidChange)="slideChange()">
-    <ion-slide>
-      <ion-infinite-scroll (ionInfinite)="loadMoreSkins()" #ionInfScroll1>
-        <ion-infinite-scroll-content>
-          <ion-grid>
-            <ion-row>
-              <ng-container *ngIf="skins.length !== 0">
-                <ion-col size="6" *ngFor="let skin of skins">
-                  <app-product
-                    [product]="skin"
-                    [cartAdd]="addToCart"
-                  ></app-product>
-                </ion-col>
-              </ng-container>
-            </ion-row>
-          </ion-grid>
-          <app-explore-skeleton
-            *ngIf="skins.length === 0"
-          ></app-explore-skeleton>
-        </ion-infinite-scroll-content>
-      </ion-infinite-scroll>
-    </ion-slide>
-    <ion-slide>
-      <ion-grid>
-        <ion-row>
-          <ng-container *ngIf="cards.length !== 0">
-            <ion-col size="6" *ngFor="let card of cards">
-              <app-product [product]="card" [cartAdd]="addToCart"></app-product>
-            </ion-col>
-          </ng-container>
-        </ion-row>
-      </ion-grid>
-      <app-explore-skeleton *ngIf="cards.length === 0"></app-explore-skeleton>
-    </ion-slide>
-    <ion-slide>
-      <ion-grid>
-        <ion-row>
-          <ng-container *ngIf="bundles.length !== 0">
-            <ion-col size="6" *ngFor="let bundle of bundles">
-              <app-product
-                [product]="bundle"
-                [cartAdd]="addToCart"
-              ></app-product>
-            </ion-col>
-          </ng-container>
-        </ion-row>
-      </ion-grid>
-      <app-explore-skeleton *ngIf="bundles.length === 0"></app-explore-skeleton>
-    </ion-slide>
-  </ion-slides>
-</ion-content>
+<super-tabs>
+  <super-tabs-toolbar slot="top">
+    <super-tab-button>
+      <ion-label color="light">SKINS</ion-label>
+    </super-tab-button>
+    <super-tab-button>
+      <ion-label class="ion-text-center" color="light">RP CARDS</ion-label>
+    </super-tab-button>
+    <super-tab-button>
+      <ion-label color="light">BUNDLES</ion-label>
+    </super-tab-button>
+  </super-tabs-toolbar>
+  <super-tabs-container>
+    <super-tab>
+      <ion-content>
+        <ion-grid>
+          <ion-row>
+            <ng-container *ngIf="skins.length !== 0">
+              <ion-col size="6" *ngFor="let skin of skins">
+                <app-product
+                  [product]="skin"
+                  [cartAdd]="addToCart"
+                ></app-product>
+              </ion-col>
+            </ng-container>
+          </ion-row>
+        </ion-grid>
+        <app-explore-skeleton *ngIf="skins.length === 0"></app-explore-skeleton>
+        <ion-infinite-scroll (ionInfinite)="loadMoreSkins()" #ionInfScroll1>
+          <ion-infinite-scroll-content> </ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+      </ion-content>
+    </super-tab>
+    <super-tab>
+      <ion-content>
+        <ion-grid>
+          <ion-row>
+            <ng-container *ngIf="cards.length !== 0">
+              <ion-col size="6" *ngFor="let card of cards">
+                <app-product [product]="card" [cartAdd]="addToCart"></app-product>
+              </ion-col>
+            </ng-container>
+          </ion-row>
+        </ion-grid>
+        <app-explore-skeleton *ngIf="cards.length === 0"></app-explore-skeleton>
+      </ion-content>
+    </super-tab>
+    <super-tab>
+      <ion-content>
+        <ion-grid>
+          <ion-row>
+            <ng-container *ngIf="bundles.length !== 0">
+              <ion-col size="6" *ngFor="let bundle of bundles">
+                <app-product
+                  [product]="bundle"
+                  [cartAdd]="addToCart"
+                ></app-product>
+              </ion-col>
+            </ng-container>
+          </ion-row>
+        </ion-grid>
+        <app-explore-skeleton *ngIf="bundles.length === 0"></app-explore-skeleton>
+      </ion-content>
+    </super-tab>
+  </super-tabs-container>
+</super-tabs>
+

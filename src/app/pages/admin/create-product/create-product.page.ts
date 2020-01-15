@@ -5,7 +5,12 @@ import {
   FormControl,
   Validators
 } from '@angular/forms';
-import { ModalController, IonImg, AlertController, IonInput } from '@ionic/angular';
+import {
+  ModalController,
+  AlertController,
+  IonInput,
+  LoadingController
+} from '@ionic/angular';
 import { ProductsService } from 'src/app/services/products.service';
 import { ToastService } from 'src/app/services/toast.service';
 
@@ -17,26 +22,26 @@ import { ToastService } from 'src/app/services/toast.service';
 export class CreateProductPage implements OnInit {
   @ViewChild('productImg', { static: false }) productImg: IonInput;
   productFormGroup: FormGroup;
-  imgIsLoading = false;
-  prodImg: string;
+  isImageUrl = false;
 
   constructor(
     private formBuilder: FormBuilder,
     private modalCtrl: ModalController,
     private productsService: ProductsService,
-    private alertCtrl: AlertController,
-    private toast: ToastService
+    private toast: ToastService,
+    private loadCtrl: LoadingController,
+    private alertCtrl: AlertController
   ) {}
 
   ngOnInit() {
     this.productFormGroup = this.formBuilder.group({
       name: new FormControl('', Validators.required),
       description: new FormControl('', Validators.required),
-      price: new FormControl('', Validators.required),
-      discount: new FormControl('', Validators.required),
+      price: new FormControl('', [Validators.required, Validators.min(0)]),
+      discount: new FormControl('', [Validators.required, Validators.min(0)]),
       type: new FormControl('', Validators.required),
       availability: new FormControl('', Validators.required),
-      image: new FormControl('', Validators.required)
+      image: new FormControl(null, Validators.required)
     });
   }
 
@@ -53,56 +58,38 @@ export class CreateProductPage implements OnInit {
   }
 
   addNewProduct() {
-    this.productsService
-      .addNewProduct(this.productFormGroup.value)
-      .then(product => {
-        this.modalCtrl.dismiss();
-        this.toast.show('Nuevo producto agregado con exito');
+    this.loadCtrl
+      .create({
+        message: 'Creating Product...'
+      })
+      .then(load => {
+        load.present();
+        this.productsService
+          .addNewProduct(this.productFormGroup.value, this.isImageUrl)
+          .subscribe(
+            res => {
+              load.dismiss();
+              this.modalCtrl.dismiss();
+              this.toast.show('Nuevo producto agregado con exito');
+            },
+            error => {
+              load.dismiss();
+              console.log(error);
+              this.alertCtrl
+                .create({
+                  header: 'An error has ocurred.',
+                  subHeader: 'Please try again later.',
+                  message: error,
+                  buttons: ['OK']
+                })
+                .then(alert => alert.present());
+            }
+          );
       });
   }
 
-  selectImageUrl() {
-    this.alertCtrl
-      .create({
-        header: 'Insert Image Url',
-        inputs: [
-          {
-            name: 'url',
-            type: 'text',
-            placeholder: 'http://example.com/exampleName.jpg'
-          }
-        ],
-        buttons: [
-          { text: 'CANCEL', role: 'cancel' },
-          {
-            text: 'INSERT URL',
-            handler: alertData => {
-              this.productImg.value = alertData.url;
-            }
-          }
-        ]
-      })
-      .then(alert => alert.present());
-  }
-
-  selectImageFromGallery() {
-    console.log(this.productFormGroup);
-    this.alertCtrl
-      .create({
-        header: 'NO SIRVE'
-      })
-      .then(alert => alert.present());
- }
-
-  startLoadingImg() {
-    this.imgIsLoading = true;
-  }
-
-  stopLoadingImg() {
-    this.imgIsLoading = false;
-  }
-
-  setImgPreview() {
-    // this.prodImg.src = this.productFormGroup.value.image;
+  onImagePicked(image: string, url = false) {
+    this.isImageUrl = url;
+    this.productFormGroup.patchValue({ image });
   }
 }

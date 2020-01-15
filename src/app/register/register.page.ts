@@ -7,7 +7,11 @@ import {
 } from '@angular/forms';
 import { EmailValidator } from '../validators/email.validator';
 import { AuthService } from '../services/auth.service';
-import { LoadingController, AlertController, NavController } from '@ionic/angular';
+import {
+  LoadingController,
+  AlertController,
+  NavController
+} from '@ionic/angular';
 import { Router } from '@angular/router';
 
 @Component({
@@ -50,18 +54,26 @@ export class RegisterPage implements OnInit {
         message: 'Please wait...'
       })
       .then(loading => loading.present());
-    this.authService.registerWithEmailAndPass(this.registerFormGroup.value)
-    .then((res: string) => {
-      this.loadingCtrl.dismiss();
-      if (res !== null) {
-        this.alertCtrl.create({
-          message: res,
-          buttons: ['OK']
-        }).then(alert => alert.present());
-      } else {
-        this.router.navigate(['login']);
-      }
-    });
+    this.authService
+      .registerWithEmailAndPass(this.registerFormGroup.value)
+      .subscribe(
+        res => {
+          this.loadingCtrl.dismiss();
+          this.registerFormGroup.reset();
+          this.router.navigate(['/layout/explore']);
+        },
+        error => {
+          this.alertCtrl
+            .create({
+              message: error,
+              buttons: ['OK']
+            })
+            .then(alert => {
+              this.loadingCtrl.dismiss();
+              alert.present();
+            });
+        }
+      );
   }
 
   showPass() {

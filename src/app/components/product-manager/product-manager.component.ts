@@ -63,7 +63,7 @@ export class ProductManagerComponent implements OnInit, OnDestroy {
             text: 'DELETE',
             cssClass: 'caution',
             handler: e => {
-              this.productsService.deleteProduct(product).then(res => {
+              this.productsService.deleteProduct(product).subscribe(res => {
                 this.toast.show('El producto ha sido eliminado');
               });
             }

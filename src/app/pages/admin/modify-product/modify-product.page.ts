@@ -91,11 +91,19 @@ export class ModifyProductPage implements OnInit {
   }
 
   saveChanges() {
-    this.productsService.modifyProduct({ id: this.loadedProduct.id, ...this.productFormGroup.value}).then(res => {
-      this.toast.show('Producto modificado con exito');
-    }).catch(err => {
-      console.error(err);
-      this.toast.show('Error al modificar el product');
-    });
+    this.productsService
+      .modifyProduct({
+        id: this.loadedProduct.id,
+        ...this.productFormGroup.value
+      })
+      .subscribe(
+        res => {
+          this.toast.show('Producto modificado con exito');
+        },
+        err => {
+          console.error(err);
+          this.toast.show('Error al modificar el product');
+        }
+      );
   }
 }

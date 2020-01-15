@@ -10,8 +10,8 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-slides [options]="{onlyExternal: true}">
+<ion-content #content>
+  <ion-slides (ionSlideWillChange)="content.scrollToTop()">
     <ion-slide>
       <ion-grid>
         <ion-row>

@@ -1,41 +1,55 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
-import { Platform, NavController } from '@ionic/angular';
+import { Platform, AlertController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Router, ActivatedRoute } from '@angular/router';
-import { AuthService } from './services/auth.service';
-import { LayoutPage } from './layout/layout.page';
+import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private fAuth: AngularFireAuth,
-    private nav: NavController,
+    private router: Router,
+    private alertCtrl: AlertController
   ) {
     this.initializeApp();
   }
 
+  private authSub: Subscription;
+  private previousAuthState = true;
+
   initializeApp() {
     this.platform.ready().then(() => {
+	this.splashScreen.hide();
       this.statusBar.styleDefault();
-      this.splashScreen.hide();
-      this.fAuth.authState.subscribe(user => {
-        if (user) {
-          this.nav.navigateRoot(['/layout/explore']);
-        } else {
-          this.nav.navigateRoot('/login');
-          console.log(user);
-        }
-      });
     });
+  }
+
+  ngOnInit() {
+    this.authSub = this.fAuth.authState.subscribe(user => {
+      if (!user && this.previousAuthState !== !!user) {
+        this.router.navigate(['/login']);
+      }
+      this.previousAuthState = !!user;
+    }, error => {
+      this.alertCtrl.create({
+        message: error
+      }).then(alert => alert.present());
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.authSub) {
+      this.authSub.unsubscribe();
+    }
   }
 }

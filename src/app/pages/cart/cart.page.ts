@@ -1,45 +1,51 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { User } from 'src/app/models/user.interface';
 import { AuthService } from 'src/app/services/auth.service';
 import { Product } from 'src/app/models/product.interface';
 import { ProductsService } from 'src/app/services/products.service';
+import { Subscription } from 'rxjs';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.page.html',
   styleUrls: ['./cart.page.scss']
 })
-export class CartPage implements OnInit {
+export class CartPage implements OnInit, OnDestroy {
   user: User;
   cartProducts: Product[] = [];
   total = 0;
+  userSub: Subscription;
 
   constructor(
     private authService: AuthService,
-    private productsService: ProductsService
+    private productsService: ProductsService,
+    private alertCtrl: AlertController
   ) {}
 
   ngOnInit() {
-    const authOb = this.authService.getCurrentUser().subscribe(userDocObs => {
-      userDocObs.subscribe(user => {
-        this.user = user;
-        this.user.cart.forEach(product => {
-          this.productsService.getProduct(product.ref.id).subscribe(p => {
-            if (this.cartProducts.findIndex(pro => pro.name === p.name) < 0) {
-              this.cartProducts.push(p);
-              this.calculateTotal();
-            }
-          });
+    this.userSub = this.authService.getCurrentUser().subscribe(user => {
+      this.user = user;
+      this.user.cart.forEach(product => {
+        this.productsService.getProduct(product.ref.id).subscribe(p => {
+          if (this.cartProducts.findIndex(pro => pro.name === p.name) < 0) {
+            this.cartProducts.push(p);
+            this.calculateTotal();
+          }
         });
-        
-        authOb.unsubscribe();
       });
     });
   }
 
-  ionViewDidEnter() {}
-
-  checkout() {}
+  checkout() {
+    this.alertCtrl
+      .create({
+        header: 'Thank you for your purchase.',
+        message: 'Thank you for preferring us. We hope to see you again soon.',
+        buttons: ['OK']
+      })
+      .then(alert => alert.present());
+  }
 
   addOneToCart(product: Product) {
     this.productsService.addProductToCart(product).subscribe(res => {
@@ -89,7 +95,12 @@ export class CartPage implements OnInit {
     this.cartProducts.forEach(p => {
       this.total +=
         this.user.cart[this.user.cart.findIndex(prod => prod.ref.id === p.id)]
-          .quantity * p.price;
+          .quantity *
+        (p.price - (p.price * (p.discount / 100)));
     });
+  }
+
+  ngOnDestroy() {
+    this.userSub.unsubscribe();
   }
 }

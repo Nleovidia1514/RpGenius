@@ -1,8 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router';
 import { User } from '../models/user.interface';
-import { IonSlides } from '@ionic/angular';
 
 @Component({
   selector: 'app-layout',
@@ -48,20 +46,17 @@ export class LayoutPage implements OnInit {
 
   public user: User;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService) {}
 
   ngOnInit() {
-    const authOb = this.authService.getCurrentUser().subscribe(userDocObs => {
-      userDocObs.subscribe(user => {
+    this.authService.getCurrentUser().subscribe(user => {
+      if (user) {
         this.user = user;
-        authOb.unsubscribe();
-      });
+      }
     });
   }
 
   logout() {
-    this.authService.logoutUser().then(res => {
-      this.router.navigate(['login']);
-    });
+    this.authService.logoutUser().subscribe();
   }
 }

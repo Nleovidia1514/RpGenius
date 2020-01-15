@@ -12,6 +12,7 @@ import { AngularFireModule } from '@angular/fire';
 import { environment } from '../environments/environment';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFireStorageModule } from '@angular/fire/storage';
 import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { EmailValidator } from './validators/email.validator';
@@ -19,6 +20,7 @@ import { ComponentsModule } from './components/components.module';
 import { HttpClientModule } from '@angular/common/http';
 import { CreateProductPage } from './pages/admin/create-product/create-product.page';
 import { VerifyCredentialsPage } from './pages/profile/security/verify-credentials/verify-credentials.page';
+import { SuperTabsModule } from '@ionic-super-tabs/angular';
 
 @NgModule({
   declarations: [AppComponent, CreateProductPage, VerifyCredentialsPage],
@@ -26,10 +28,12 @@ import { VerifyCredentialsPage } from './pages/profile/security/verify-credentia
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
+    SuperTabsModule.forRoot(),
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFirestoreModule,
     AngularFireAuthModule,
+    AngularFireStorageModule,
     ReactiveFormsModule,
     FormsModule,
     ComponentsModule,

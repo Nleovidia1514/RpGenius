@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit, OnDestroy } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { User } from '../models/user.interface';
-import { map, first } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { map, first, switchMap, tap } from 'rxjs/operators';
+import { of, from, BehaviorSubject, Subscription } from 'rxjs';
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
 
 interface RegisterValues {
   firstName: string;
@@ -21,99 +23,134 @@ interface LoginValues {
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
+  private _user = new BehaviorSubject<User>(null);
+  private userSub: Subscription;
+
   constructor(
     private fAuth: AngularFireAuth,
     private firestore: AngularFirestore
-  ) {}
+  ) {
+    this.userSub = this.getUserObservable().subscribe(user => {
+      this._user.next(user);
+    });
+  }
+
+
+  ngOnDestroy() {
+    if (this.userSub) {
+      this.userSub.unsubscribe();
+    }
+  }
 
   getCurrentUser() {
+    return this._user.asObservable();
+  }
+
+  getUserObservable() {
+    let userEmail: string;
     return this.fAuth.authState.pipe(
-      map(user => {
-        if (user !== null) {
+      switchMap(user => {
+        if (user) {
+          userEmail = user.email;
           return this.firestore
             .doc<User>(`users/${user.uid}`)
-            .snapshotChanges()
-            .pipe(
-              map(doc => {
-                return { ...doc.payload.data(), email: user.email } as User;
-              })
-            );
+            .snapshotChanges();
         } else {
           return of(null);
+        }
+      }),
+      map(doc => {
+        if (doc) {
+          return { ...doc.payload.data(), email: userEmail } as User;
         }
       })
     );
   }
 
   registerWithEmailAndPass(values: RegisterValues) {
-    return new Promise(resolve => {
-      this.fAuth.auth
-        .createUserWithEmailAndPassword(values.email, values.password)
-        .then(res => {
-          const userId = this.fAuth.auth.currentUser.uid;
+    return from(
+      this.fAuth.auth.createUserWithEmailAndPassword(
+        values.email,
+        values.password
+      )
+    ).pipe(
+      switchMap(res => {
+        const userId = this.fAuth.auth.currentUser.uid;
+        if (userId) {
           const userDoc = this.firestore.doc<User>('users/' + userId);
-          userDoc.set({
+          return userDoc.set({
             firstName: values.firstName,
             lastName: values.lastName,
             displayName: values.displayName,
             cart: [],
             isAdmin: false
           });
-          resolve(null);
-        })
-        .catch(err => {
-          console.error(err);
-          resolve(err.message);
-        });
-    });
+        }
+        return of(null);
+      })
+    );
   }
 
   modifyUser(values: User) {
-    return new Promise<User>((resolve, reject) => {
-      this.fAuth.authState.pipe(first()).subscribe(user => {
+    let userId: string;
+    return this.fAuth.authState.pipe(first()).pipe(
+      switchMap(user => {
         if (user) {
-          user.updateEmail(values.email);
-          this.firestore
-            .doc<User>('users/' + user.uid)
-            .update({
-              firstName: values.firstName,
-              lastName: values.lastName,
-              displayName: values.displayName,
-              cart: values.cart,
-              isAdmin: values.isAdmin
-            })
-            .then(res => {
-              resolve(null);
-            })
-            .catch(err => {
-              console.error(err);
-              reject(err);
-            });
+          userId = user.uid;
+          return from(user.updateEmail(values.email));
         }
-      });
-    });
+        return of(null);
+      }),
+      first(),
+      switchMap(() => {
+        if (userId) {
+          return this.firestore.doc<User>('users/' + userId).update({
+            firstName: values.firstName,
+            lastName: values.lastName,
+            displayName: values.displayName,
+            cart: values.cart,
+            isAdmin: values.isAdmin
+          });
+        }
+        return of(null);
+      }),
+      first()
+    );
+  }
+
+  modifyPassword(newPass: string) {
+    return from(this.fAuth.auth.currentUser.updatePassword(newPass)).pipe(
+      first()
+    );
+  }
+
+  deleteUser() {
+    const currentUser = this.fAuth.auth.currentUser;
+    return from(this.firestore.doc('users/' + currentUser.uid).delete()).pipe(
+      first(),
+      switchMap(res => {
+        return currentUser.delete();
+      })
+    );
+  }
+
+  reauthenticateUser(values: LoginValues) {
+    const user = this.fAuth.auth.currentUser;
+    const credential = firebase.auth.EmailAuthProvider.credential(
+      values.email,
+      values.password
+    );
+    return from(user.reauthenticateWithCredential(credential)).pipe(first());
   }
 
   loginWithEmailAndPass(values: LoginValues) {
-    return new Promise((resolve, reject) => {
-      this.fAuth.auth
-        .signInWithEmailAndPassword(values.email, values.password)
-        .then(res => {
-          resolve(res.user);
-        })
-        .catch(err => {
-          console.error(err);
-          reject({ message: err.message });
-        });
-    });
+    return from(
+      this.fAuth.auth.signInWithEmailAndPassword(values.email, values.password)
+    ).pipe(first());
   }
 
   logoutUser() {
-    return new Promise(resolve => {
-      this.fAuth.auth.signOut().then(res => {
-        resolve(null);
-      });
-    });
+    return from(this.fAuth.auth.signOut()).pipe(first());
   }
 }

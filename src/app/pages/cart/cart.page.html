@@ -158,7 +158,7 @@
                 user.cart.find(helperCheck(product)).quantity }}
               </ion-col>
               <ion-col size="4" class="ion-text-end">
-                {{ product.price * user.cart.find(helperCheck(product)).quantity
+                {{ ((product.price)-(product.price * (product.discount/100))) * user.cart.find(helperCheck(product)).quantity
                 | currency }}
               </ion-col>
             </ion-row>

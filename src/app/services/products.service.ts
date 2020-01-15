@@ -2,16 +2,16 @@ import { Injectable } from '@angular/core';
 import {
   AngularFirestore,
   AngularFirestoreCollection,
-  QueryDocumentSnapshot,
-  AngularFirestoreDocument,
-  DocumentReference
+  QueryDocumentSnapshot
 } from '@angular/fire/firestore';
 import { Product } from '../models/product.interface';
-import { map, first } from 'rxjs/operators';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, first, switchMap } from 'rxjs/operators';
+import { Observable, from } from 'rxjs';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { User } from '../models/user.interface';
+import { AngularFireStorage } from '@angular/fire/storage';
+import { environment } from 'src/environments/environment';
+import uuid from 'uuid/v4';
 
 @Injectable({
   providedIn: 'root'
@@ -21,8 +21,8 @@ export class ProductsService {
 
   constructor(
     private firestore: AngularFirestore,
-    private http: HttpClient,
-    private fAuth: AngularFireAuth
+    private fAuth: AngularFireAuth,
+    private storage: AngularFireStorage
   ) {}
 
   getSkins(firstLoad: boolean = false) {
@@ -32,7 +32,7 @@ export class ProductsService {
         ref
           .where('type', '==', 'skin')
           .orderBy('times_bought', 'asc')
-          .limit(15)
+          .limit(10)
       );
     } else {
       query = this.firestore.collection<Product>('skins', ref =>
@@ -40,7 +40,7 @@ export class ProductsService {
           .where('type', '==', 'skin')
           .orderBy('times_bought', 'asc')
           .startAfter(this.lastDoc)
-          .limit(15)
+          .limit(10)
       );
     }
 
@@ -107,8 +107,9 @@ export class ProductsService {
   }
 
   getProduct(productId: string) {
-    const pro: Observable<Product> = this.firestore
-      .doc<Product>('skins/' + productId)
+    return this.firestore
+      .collection('skins')
+      .doc<Product>(productId)
       .get()
       .pipe(
         map(doc => {
@@ -126,7 +127,6 @@ export class ProductsService {
           };
         })
       );
-    return pro;
   }
 
   addProductToCart(product: Product) {
@@ -137,7 +137,9 @@ export class ProductsService {
       map(doc => {
         const cart = doc.data().cart;
         const index = cart.findIndex(prod => prod.ref.id === product.id);
-        const prodDoc = this.firestore.doc<Product>(`skins/${product.id}`);
+        const prodDoc = this.firestore
+          .collection('skins')
+          .doc<Product>(product.id);
         const toUpdate = cart.find(prod => prod.ref.id === product.id);
         let newP = false;
         if (index < 0) {
@@ -162,46 +164,100 @@ export class ProductsService {
       `users/${this.fAuth.auth.currentUser.uid}`
     );
     return userDoc.get().pipe(
-      map(doc => {
+      switchMap(doc => {
         const cart = doc.data().cart;
         const index = cart.findIndex(prod => prod.ref.id === product.id);
         cart[index].quantity -= 1;
         if (cart[index].quantity === 0 || whole) {
           cart.splice(index, 1);
         }
-        userDoc.update({ cart });
+        return userDoc.update({ cart });
       }),
       first()
     );
   }
 
-  addNewProduct(product: Product) {
-    return this.firestore.collection<Product>('skins').add({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      discount: product.discount,
-      type: product.type,
-      availability: product.availability,
-      image: product.image,
-      times_bought: 0
-    });
+  addNewProduct(product: Product, url: boolean): Observable<any> {
+    if (url) {
+      return from(
+        this.firestore.collection<Product>('skins').add({
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          discount: product.discount,
+          type: product.type,
+          availability: product.availability,
+          image: product.image,
+          times_bought: 0
+        })
+      );
+    }
+    const formattedImage = product.image.replace('data:image/jpeg;base64,', '');
+    const id = uuid();
+    const imagePath = `product-images/${id}.jpg`;
+    return from(
+      this.storage
+        .ref('')
+        .child(imagePath)
+        .putString(formattedImage, 'base64', {
+          contentType: 'image/jpeg'
+        })
+    ).pipe(
+      first(),
+      switchMap(res => {
+        return this.storage.ref(imagePath).getDownloadURL();
+      }),
+      first(),
+      switchMap(imageUrl => {
+        return from(
+          this.firestore
+            .collection('skins')
+            .doc<Product>(id)
+            .set({
+              name: product.name,
+              description: product.description,
+              price: product.price,
+              discount: product.discount,
+              type: product.type,
+              availability: product.availability,
+              image: imageUrl,
+              times_bought: 0
+            })
+        );
+      }),
+      first()
+    );
   }
 
   deleteProduct(product: Product) {
-    return this.firestore.doc<Product>('skins/' + product.id).delete();
+    return from(
+      this.firestore
+        .collection('skins')
+        .doc<Product>(product.id)
+        .delete()
+    ).pipe(
+      first(),
+      switchMap(() => {
+        return this.storage.ref(`product-images/${product.id}.jpg`).delete();
+      })
+    );
   }
 
   modifyProduct(product: Product) {
-    return this.firestore.doc<Product>('skins/' + product.id).update({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      discount: product.discount,
-      type: product.type,
-      availability: product.availability,
-      image: product.image,
-      times_bought: 0
-    });
+    return from(
+      this.firestore
+        .collection('skins')
+        .doc<Product>(product.id)
+        .update({
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          discount: product.discount,
+          type: product.type,
+          availability: product.availability,
+          image: product.image,
+          times_bought: 0
+        })
+    ).pipe(first());
   }
 }

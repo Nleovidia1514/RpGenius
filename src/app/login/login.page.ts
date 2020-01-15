@@ -61,15 +61,15 @@ export class LoginPage implements OnInit {
   login() {
     console.log('hi');
     this.loading = true;
-    this.authService
-      .loginWithEmailAndPass(this.loginFormGroup.value)
-      .then(res => {
+    this.authService.loginWithEmailAndPass(this.loginFormGroup.value).subscribe(
+      res => {
         this.loading = false;
         this.nav.navigateRoot('/layout/explore');
-      })
-      .catch(err => {
+      },
+      err => {
         this.loading = false;
         this.toast.show(err.message);
-      });
+      }
+    );
   }
 }

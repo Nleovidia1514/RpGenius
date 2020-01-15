@@ -7,9 +7,6 @@ import {
 } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 import { ModalController } from '@ionic/angular';
-import { User } from 'src/app/models/user.interface';
-import { ToastService } from 'src/app/services/toast.service';
-import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-verify-credentials',
@@ -20,14 +17,12 @@ export class VerifyCredentialsPage implements OnInit {
   loginFormGroup: FormGroup;
   showPassword = false;
   loading = false;
-  @Input() updateValues: User;
+  @Input() action: () => void;
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private modalCtrl: ModalController,
-    private toast: ToastService,
-    private location: Location
+    private modalCtrl: ModalController
   ) {}
 
   ngOnInit() {
@@ -53,21 +48,15 @@ export class VerifyCredentialsPage implements OnInit {
 
   loginWithEmail() {
     this.loading = true;
-    this.authService
-      .loginWithEmailAndPass(this.loginFormGroup.value)
-      .then(res => {
-        this.authService
-          .modifyUser(this.updateValues)
-          .then(response => {
-            this.loading = false;
-            this.toast.show('El usuario ha sido modificado con exito');
-            this.modalCtrl.dismiss();
-            this.location.back();
-          })
-          .catch(err => {
-            console.error(err);
-            this.toast.show('Ha ocurrido un error al modificar el usuario');
-          });
-      });
+    this.authService.reauthenticateUser(this.loginFormGroup.value).subscribe(
+      () => {
+        this.loading = false;
+        this.action();
+      },
+      err => {
+        this.loading = false;
+        console.error(err);
+      }
+    );
   }
 }

@@ -1,0 +1,16 @@
+.collapse {
+    overflow: hidden;
+    transition: all 0.5s ease-out 0.1s;
+    -webkit-transition: all 0.5s ease-out 0.1s;
+    -moz-transition: all 0.5s ease-out 0.1s;
+    -ms-transition: all 0.5s ease-out 0.1s;
+    -o-transition: all 0.5s ease-out 0.1s;
+}
+
+.collapse.close {
+    height: 0px;
+}
+
+.collapse.open {
+    height: auto;
+}

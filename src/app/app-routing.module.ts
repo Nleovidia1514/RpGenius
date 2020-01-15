@@ -5,7 +5,7 @@ import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'layout/explore',
     pathMatch: 'full'
   },
   {
@@ -18,8 +18,7 @@ const routes: Routes = [
   },
   {
     path: 'layout',
-    loadChildren: './layout/layout.module#LayoutPageModule',
-    canActivate: [AngularFireAuthGuard]
+    loadChildren: './layout/layout.module#LayoutPageModule'
   }
 ];
 

@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-no-padding">
   <form [formGroup]="productFormGroup">
     <ion-grid>
       <ion-row>
@@ -69,43 +69,16 @@
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col>
-          <ion-item>
-            <ion-button slot="start" (click)="selectImageFromGallery()">
-              <ion-icon name="camera" slot="start"></ion-icon>
-              <ion-label>Imagen</ion-label>
-            </ion-button>
-            <ion-button slot="end" (click)="selectImageUrl()">
-              <ion-icon name="globe" slot="start"></ion-icon>
-              <ion-label>Url</ion-label>
-            </ion-button>
-            <ion-input
-              class="uk-hidden"
-              formControlName="image"
-              #productImg
-            ></ion-input>
-          </ion-item>
+        <ion-col size-sm="6" offset-sm="6">
+          <app-image-picker
+            [showPreview]="productFormGroup.get('image').value"
+            (imagePicked)="onImagePicked($event)"
+            (urlPicked)="onImagePicked($event, true)"
+          ></app-image-picker>
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col class="ion-text-center">
-          <h3>Imagen de Producto</h3>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="4" offset="4">
-          <div>
-            <img
-              #productImg
-              [src]="productFormGroup.value.image"
-              (ionImgWillLoad)="startLoadingImg()"
-              (ionImgDidLoad)="stopLoadingImg()"
-            />
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="4" offset="4">
+        <ion-col size="4" offset="4" class="ion-text-center">
           <ion-button
             type="submit"
             color="success"

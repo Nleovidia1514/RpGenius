@@ -15,7 +15,20 @@
       </ion-row>
       <ion-row>
         <ion-col>
-          <ion-card-title>{{ product.price | currency }}</ion-card-title>
+          <ion-card-title>
+            <ion-row>
+              <ion-col>
+                <span [class]="product.discount !== 0 ? 'crossed' : ''">{{
+                  product.price | currency
+                }}</span>
+              </ion-col>
+              <ion-col>
+                <span *ngIf="product.discount !== 0" class="feature">{{
+                  (product.price - (product.price * (product.discount / 100))) | currency
+                }}</span>
+              </ion-col>
+            </ion-row>
+          </ion-card-title>
         </ion-col>
       </ion-row>
     </ion-grid>
